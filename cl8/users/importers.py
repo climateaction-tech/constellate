@@ -646,7 +646,7 @@ class DuplicateJoinRequest(Exception):
 CAT_RESPONSES_WORKSHEET = "Form Responses 1"
 
 
-def fetch_profile_info_from_gsheet(email: str):
+def fetch_profile_info_from_gsheet(email: str) -> List[str]:
     """
     Accept an email address, and based on the email associated with it, fetch the
     matching information to add to a given user, like their responses to the
@@ -688,7 +688,7 @@ def create_user_from_join_request(cat_join_req: CATJoinRequest):
     and then a corresponding profile.
     """
 
-    # exist early if we have already created a user for this email
+    # exit early if we have already created a user for this email
     if User.objects.filter(email=cat_join_req.email).exists():
         return False
 
@@ -716,7 +716,6 @@ def add_bio_to_profile_from_join_request(profile: Profile, join_req: CATJoinRequ
     else:
         profile.bio = join_req.bio_text_from_join_request()
     profile.save()
-    return profile
 
 
 def create_join_request_from_row(row: List[str]) -> CATJoinRequest:
