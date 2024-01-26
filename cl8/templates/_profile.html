@@ -57,13 +57,29 @@
                    class="text-blue-700"
                    download>Get contact</a>
             </p>
-        {% endflag %}
+            {% endflag %}
         {% if can_edit %}
             <a href="{% url 'profile-edit' profile.short_id %}"
                hx-get="{% url 'profile-edit' profile.short_id %}"
                hx-target="body"
                hx-swap="beforeend"
                class="btn btn-sm mt-2 mb-2 max-w-xs">Edit</a>
+
+            <form action="{% url 'profile-cat-joinform-import' profile.short_id %}"
+                    method="post"
+                    class="inline-block">
+                {% csrf_token %}
+                <button type="submit"
+                        class="btn btn-sm mt-2 mb-2 max-w-xs">Import CAT Joiningform Info
+                </button>
+            </form>
+            {% endif %}
+        </div>
+    </div>
+    <div class="px-0">
+        {% if profile_rendered_bio %}
+            {% comment %} <h3>Bio</h3> {% endcomment %}
+            <div class="prose">{{ profile_rendered_bio|safe }}</div>
         {% endif %}
     </div>
 </div>

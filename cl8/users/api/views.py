@@ -10,7 +10,7 @@ from django.core import paginator
 from django.core.files.images import ImageFile
 from django.db.models import Case, When
 from django.http import HttpRequest, HttpResponse
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from django.template.loader import render_to_string
 from django.urls import resolve
 from django.utils.text import slugify
@@ -29,6 +29,7 @@ from rest_framework.mixins import (
     RetrieveModelMixin,
     UpdateModelMixin,
 )
+from django.contrib import messages
 from rest_framework.parsers import FormParser, MultiPartParser
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -45,6 +46,8 @@ from .serializers import (
     ProfileSerializer,
     TagSerializer,
 )
+
+from ..importers import import_user_from_gsheet, NoMatchingCAT
 
 User = get_user_model()
 
@@ -286,6 +289,51 @@ class ProfileVcardView(View, LoginRequiredMixin, SingleObjectMixin):
                 "Content-Disposition": f'attachment; filename="{filename}"',
             },
         )
+
+
+class ProfileCATJoinFormImportView(View, LoginRequiredMixin, SingleObjectMixin):
+    model = Profile
+    slug_field = "short_id"
+
+    http_method_names = ["post"]
+
+    def post(self, request, *args, **kwargs):
+        profile = self.get_object()
+
+        if request.user.is_admin() or request.user == profile.user:
+            # import the corresponding information from google sheets
+            try:
+                import_user_from_gsheet(profile.user.email)
+                messages.add_message(
+                    request,
+                    messages.SUCCESS,
+                    ("We've imported your information from the CAT joining form."),
+                )
+                return redirect(profile.get_absolute_url())
+            except NoMatchingCAT:
+                # add message to say no matching CAT found, and redirect back
+                # to the profile view url
+                messages.add_message(
+                    request,
+                    messages.WARNING,
+                    (
+                        "Sorry, we couldn't find any matching joining form information"
+                        " for this user. "
+                    ),
+                )
+
+            return redirect(profile.get_absolute_url())
+
+        messages.add_message(
+            request,
+            messages.WARNING,
+            (
+                "Sorry, we couldn't find a matching joining form information"
+                " for this user. "
+            ),
+        )
+
+        return redirect(profile.get_absolute_url())
 
 
 class ProfileEditView(LoginRequiredMixin, PermissionRequiredMixin, UpdateView):

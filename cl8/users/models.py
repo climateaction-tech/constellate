@@ -374,6 +374,7 @@ class CATJoinRequest(models.Model):
 
 
 ### What's the main thing you'd like to offer as a part of the community?
+
 {self.main_offer}
 """
 
