@@ -13,6 +13,7 @@ from cl8.users.api.views import (
     ProfileDetailView,
     ProfileVcardView,
     ProfileEditView,
+    ProfileCATJoinFormImportView,
     TagAutoCompleteView,
     homepage,
 )
@@ -26,6 +27,11 @@ urlpatterns = [
     path("profiles/<slug>.vcf", ProfileVcardView.as_view(), name="profile-vcard"),
     path("profiles/<slug>/", ProfileDetailView.as_view(), name="profile-detail"),
     path("profiles/<slug>/edit", ProfileEditView.as_view(), name="profile-edit"),
+    path(
+        "profiles/<slug>/cat-joinform-import",
+        ProfileCATJoinFormImportView.as_view(),
+        name="profile-cat-joinform-import",
+    ),
     #
     # Django Admin, use {% url 'admin:index' %}
     # use this to sanity check differences between the default
