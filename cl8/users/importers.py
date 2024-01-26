@@ -707,9 +707,14 @@ def create_user_from_join_request(cat_join_req: CATJoinRequest):
 def add_bio_to_profile_from_join_request(profile: Profile, join_req: CATJoinRequest):
     """
     Accept a profile object, and a join request, and add the bio
-    from the join request to the profile
+    from the join request to the profile. To avoid overwriting
+    existing info, the bio is only appended to existing information.
     """
-    profile.bio = join_req.bio_text_from_join_request()
+    bio = profile.bio
+    if bio:
+        profile.bio = f"{bio}\n\n---\n\n{join_req.bio_text_from_join_request()}"
+    else:
+        profile.bio = join_req.bio_text_from_join_request()
     profile.save()
     return profile
 
@@ -732,9 +737,8 @@ def create_join_request_from_row(row: List[str]) -> CATJoinRequest:
         return CATJoinRequest.objects.create(
             joined_at=reformatted_time,
             email=row[1],
-            city_country=row[2],
-            why_join=row[3],
-            main_offer=row[4],
+            why_join=row[4],
+            main_offer=row[5],
         )
     except Exception as ex:
         logger.warn(ex)
@@ -751,3 +755,49 @@ def add_cat_responses_to_profiles():
         if join_req:
             prof.bio = join_req.bio_text_from_join_request()
             prof.save()
+
+def gsheet_join_request_for_email(email: str) -> CATJoinRequest:
+    """
+    Return the matching join request for the provided email address, from
+    the CAT joining form spreadsheet
+    """
+    gc = gspread.service_account(filename=settings.GSPREAD_SERVICE_ACCOUNT)
+    gsheet = gc.open_by_key(settings.GSPREAD_KEY)
+    responses_worksheet = gsheet.worksheet(CAT_RESPONSES_WORKSHEET)
+
+    matching_cell_for_email = responses_worksheet.find(email)
+
+    if not matching_cell_for_email:
+        raise NoMatchingCAT
+
+    response_values = responses_worksheet.row_values(matching_cell_for_email.row)
+    join_request = create_join_request_from_row(response_values)
+
+    if join_request:
+        return join_request
+
+    # fail early, so we don't need to be checking for 'None' later
+    raise Exception(
+        "Could not create join request from provided row of spreadsheet data"
+    )
+
+
+def import_user_from_gsheet(email: str):
+    """
+    Accept an email address, and based on the email associated with it, fetch the
+    matching information to add to a given user, like their responses to the
+    initial signup questions
+    """
+
+    join_request = gsheet_join_request_for_email(email)
+
+    try:
+        existing_user = User.objects.get(email=join_request.email)
+        # just add the responses to the profile, non-destructively
+        add_bio_to_profile_from_join_request(existing_user.profile, join_request)
+        join_request.bio_text_from_join_request()
+        return existing_user
+    except User.DoesNotExist:
+        # create user, and add responses to profile
+        user = create_user_from_join_request(join_request)
+        return user
