@@ -2,11 +2,11 @@ name: Fly Deploy to staging
 on:
   push:
     branches:
-      - cat-staging
+      - staging
 jobs:
   deploy:
     name: Deploy app to CAT staging environment with Fly
-    environment: cat-staging
+    environment: staging
 
     runs-on: ubuntu-latest
     steps:
