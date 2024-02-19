@@ -23,6 +23,7 @@ COPY Pipfile Pipfile.lock /code/
 RUN pipenv install --dev --system
 
 COPY . /code
+RUN cd theme/static_src/ && npm install && cd ../..
 RUN python manage.py tailwind install
 RUN python manage.py tailwind build
 RUN python manage.py collectstatic --noinput
