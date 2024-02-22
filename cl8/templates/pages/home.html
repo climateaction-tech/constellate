@@ -19,7 +19,7 @@
                   {% comment %} <p>
                     <label class="inline-block w-100 mr-8 text-xl" for="{{ profile_filter.form.bio.id_for_label }}">Showing profile results matching:</label>
                   </p> {% endcomment %}
-                  {% render_field profile_filter.form.bio hx-get="/" hx-trigger="keyup changed delay:0.1s," hx-target=".sidebar" class="text-xl min-w-[100%]" hx-sync="closest form:abort" %}
+                  {% render_field profile_filter.form.bio hx-get="/" hx-trigger="keyup changed delay:0.1s" hx-target=".sidebar" class="text-xl min-w-[100%]" hx-sync="closest form:abort" %}
                 </div>
                 <div>
                   <button class="btn mt-4 lg:mt-0 lg:ml-4" type="submit">Search</button>
