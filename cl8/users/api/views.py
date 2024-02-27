@@ -330,6 +330,40 @@ class ProfileEditView(LoginRequiredMixin, PermissionRequiredMixin, UpdateView):
         }
         return kwargs
 
+    def get(self, request, *args, **kwargs):
+        self.object = self.get_object()
+        context = self.get_context_data(object=self.object)
+
+        if request.htmx:
+            self.template_name = "_profile_edit_modal.html"
+            return self.render_to_response(context)
+
+        return self.render_to_response(context)
+
+    def post(self, request, *args, **kwargs):
+
+        self.object = self.get_object()
+        form = self.get_form()
+
+        context = self.get_context_data(object=self.object)
+
+        if request.htmx:
+            if form.is_valid():
+                # we're happy with the update, tell the modal to close and reload
+                # our profile page
+                import json
+
+                form.save()
+                return HttpResponse(
+                    headers={"Hx-Trigger": json.dumps({"close-modal": True})}
+                )
+
+            else:
+                self.template_name = "_profile_edit_modal.html"
+                return self.render_to_response({"form": form})
+
+        return super().post(request, *args, **kwargs)
+
 
 class ProfileCreateView(CreateView):
     template_name = "pages/create_profile.html"

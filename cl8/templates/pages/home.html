@@ -56,7 +56,13 @@
         <div class="sidebar transition-all border {% if hide_profile_list %}hidden{% endif %} lg:inline"
              style="max-height: 100vh">{% include "pages/_paginated_profiles.html" %}</div>
         <div id="profile-slot"
-             class="card bg-base-100 lg:col-span-2 border rounded-none {% if not hide_profile_list %}hidden{% endif %} lg:inline">
+             class="card bg-base-100 lg:col-span-2 border rounded-none {% if not hide_profile_list %}hidden{% endif %} lg:inline"
+              hx-trigger="save-profile-change from:body"
+              hx-get="."
+              hx-target="#profile-slot"
+              hx-swap="outerHTML"
+              >
+             
           {% if profile %}
             {% comment %} show the profile with all the tags, and details {% endcomment %}
             {% include '_profile.html' %}
@@ -107,6 +113,7 @@
       // so we use the vanilla js version
       document.body.addEventListener("update-profile", function(evt) {
         console.debug({detail:evt.detail})
+        
         const profileSlot = htmx.find("#profile-slot")
         const profileList = htmx.find(".sidebar")
 
@@ -143,9 +150,6 @@
     }
     addlistenersForActiveTags()
 
-  
-
-
   document.body.addEventListener('active-tags-changed', (event) => {
     console.debug("active-tags-changed")
     console.debug({event })
@@ -161,7 +165,6 @@
     // the DOM elements
     addlistenersForActiveTags()
   })
-
 
   </script>
 {% endblock scripts %}
