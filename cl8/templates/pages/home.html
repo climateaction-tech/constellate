@@ -1,6 +1,38 @@
 {% extends "base.html" %}
 {% load static widget_tweaks %}
 {% block content %}
+
+  <style>
+
+  dialog {
+    /* Override some builtins that limit us: */
+    max-width: 70vw;
+    width: calc(100vw - 40px);
+    height: calc(100vh - 40px);
+
+    
+    /* Fade in: */
+    display: flex;  /* for some reason, display: block disables the transition. */
+    flex-direction: column;
+    opacity: 0;
+    transition: opacity 0.15s;
+    pointer-events: none; /* necessary or the main page becomes inaccessible after closing dialog */
+}
+
+
+
+dialog[open] {
+    opacity: 1;
+    pointer-events: inherit;
+}
+
+dialog::backdrop {
+    background-color: #0008;
+}
+
+  </style>
+
+
   <main class="">
     {% comment %} add our search component spanning the full width {% endcomment %}
     <section class="search-component grid grid-cols-[1fr_minmax(auto,70rem)_1fr]">
@@ -60,7 +92,7 @@
               hx-trigger="save-profile-change from:body"
               hx-get="."
               hx-target="#profile-slot"
-              hx-swap="outerHTML"
+              hx-swap="innerHTML"
               >
              
           {% if profile %}
