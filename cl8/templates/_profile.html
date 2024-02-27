@@ -58,6 +58,9 @@
             </p>
             {% if can_edit %}
                 <a href="{% url 'profile-edit' profile.short_id %}"
+                   hx-get="{% url 'profile-edit' profile.short_id %}"
+                   hx-target="body"
+                   hx-swap="beforeend"
                    class="btn btn-sm mt-2 mb-2 max-w-xs">Edit</a>
             {% endif %}
         </div>
@@ -98,13 +101,9 @@
     </div>
 </div>
 <script>
-// TODO: loading a script tag in an htmx request causes an error to be logged, but this does not seem to affect
-// the functioning of the script. I don't know why.
-
 // when a user clicks on a tag, emit an event listing the nane of the tag being clicked
 // this is picked up by the parent component and used to filter the list of profiles
 // shown    
-
 document.querySelectorAll('#profile-slot .badge').forEach(item => {
     item.addEventListener('click', event => {
         // we can't just bubble up a 'click' event to the parent elements
@@ -156,4 +155,27 @@ function clearProfile() {
 
 }
 document.querySelector('#clear-profile').addEventListener('click', clearProfile)
+
+document.body.addEventListener("htmx:afterSettle", function(detail) {
+    const dialog = detail.target.querySelector('dialog[data-onload-showmodal]');
+    if (dialog) {
+        dialog.showModal();
+        // remove the dialog from the DOM when it's closed
+        dialog.addEventListener("close", () => {
+          dialog.remove();
+        });
+    };
+});
+// close-modal event is triggered when we have a successful update
+// to a profile
+document.body.addEventListener('close-modal', function() {
+    const openDialog = document.querySelector('dialog[open]');
+    
+    if (openDialog) {
+      openDialog.close();
+    }
+    // trigger a reload of the profile with a 'save-profile-change'
+    //event, this makes sure we have the latest info for the profile
+    document.body.dispatchEvent(new CustomEvent("save-profile-change")) 
+});
 </script>
