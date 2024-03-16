@@ -1,0 +1,113 @@
+{% load static widget_tweaks %}
+<div class=" col-span-2 prose">
+    <div class="form-control w-full max-w-xs">
+        {% comment %} add form errors for name {% endcomment %}
+        <label class="label" for="{{ form.name.id_for_label }}">
+            <span class="label-text">{{ form.name.label }}</span>
+            {% if form.name.errors %}
+                <span class="label-text">{{ form.name.errors.as_text }}</span>
+            {% endif %}
+        </label>
+        <input type="text"
+                placeholder="Type here"
+                name="{{ form.name.html_name }}"
+                value="{{ form.name.value }}"
+                class="input input-bordered w-full max-w-xs" />
+    </div>
+    <div class="form-control w-full max-w-xs">
+        <label class="label" for="{{ form.organisation.id_for_label }}">
+            <span class="label-text">{{ form.organisation.label }}</span>
+            {% if form.organisation.errors %}
+                <span class="label-text">{{ form.organisation.errors.as_text }}</span>
+            {% endif %}
+        </label>
+        <input type="text"
+                placeholder="Type here"
+                name="{{ form.organisation.html_name }}"
+                value="{{ form.organisation.value|default_if_none:'' }}"
+                class="input input-bordered w-full max-w-xs" />
+    </div>
+    <div class="form-control w-full max-w-xs">
+        <label class="label" for="{{ form.location.id_for_label }}">
+            <span class="label-text">{{ form.location.label }}</span>
+            {% if form.location.errors %}
+                <span class="label-text">{{ form.location.errors.as_text }}</span>
+            {% endif %}
+        </label>
+        <input type="text"
+                placeholder="Type here"
+                name="{{ form.location.html_name }}"
+                value="{{ form.location.value|default_if_none:'' }}"
+                class="input input-bordered w-full max-w-xs" />
+    </div>
+    <div class="form-control w-full max-w-xs">
+        <label class="label" for="{{ form.phone.id_for_label }}">
+            <span class="label-text">{{ form.phone.label }}</span>
+            {% if form.phone.errors %}
+                <span class="label-text">{{ form.phone.errors.as_text }}</span>
+            {% endif %}
+        </label>
+        <input type="text"
+                placeholder="Type here"
+                name="{{ form.phone.html_name }}"
+                value="{{ form.phone.value|default_if_none:'' }}"
+                class="input input-bordered w-full max-w-xs" />
+    </div>
+    <div class="form-control w-full max-w-xs">
+        <label class="label" for="{{ form.linkedin.id_for_label }}">
+            <span class="label-text">{{ form.linkedin.label }}</span>
+            {% if form.linkedin.errors %}
+                <span class="label-text">{{ form.linkedin.errors.as_text }}</span>
+            {% endif %}
+        </label>
+        <input type="text"
+                placeholder="Type here"
+                name="{{ form.linkedin.html_name }}"
+                value="{{ form.linkedin.value|default_if_none:'' }}"
+                class="input input-bordered w-full max-w-xs" />
+    </div>
+    <div class="form-control w-full max-w-xs">
+        <label class="label" for="{{ form.twitter.id_for_label }}">
+            <span class="label-text">{{ form.twitter.label }}</span>
+            {% if form.twitter.errors %}
+                <span class="label-text">{{ form.twitter.errors.as_text }}</span>
+            {% endif %}
+        </label>
+        <input type="text"
+                placeholder="Type here"
+                name="{{ form.twitter.html_name }}"
+                value="{{ form.twitter.value|default_if_none:'' }}"
+                class="input input-bordered w-full max-w-xs" />
+    </div>
+    <div class="form-control w-full max-w-xs">
+        <label class="label" for="{{ form.facebook.id_for_label }}">
+            <span class="label-text">{{ form.facebook.label }}</span>
+            {% if form.facebook.errors %}
+                <span class="label-text">{{ form.facebook.errors.as_text }}</span>
+            {% endif %}
+        </label>
+        <input type="text"
+                placeholder="Type here"
+                name="{{ form.facebook.html_name }}"
+                value="{{ form.facebook.value|default_if_none:'' }}"
+                class="input input-bordered w-full max-w-xs" />
+    </div>
+    <div class="form-control">
+        <label class="label">
+            <span class="label-text">{{ form.bio.label }}</span>
+            {% if form.bio.errors %}
+                <span class="label-text">{{ form.bio.errors.as_text }}</span>
+            {% endif %}
+        </label>
+        {% render_field form.bio class="textarea textarea-bordered w-full" placeholder="Type here" rows="5" cols="40" %}
+    </div>
+    <div class="form-control w-full">
+        <label class="label">
+            <span class="label-text">{{ form.tags.label }}</span>
+            {% if form.tags.errors %}
+                <span class="label-text">{{ form.tags.errors.as_text }}</span>
+            {% endif %}
+        </label>
+        {% render_field form.tags class="w-full mt-4" %}
+    </div>
+</div>
