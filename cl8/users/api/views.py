@@ -1,6 +1,6 @@
+import json
 import logging
-from django_htmx.http import trigger_client_event
-from django.template.loader import render_to_string
+
 from dal import autocomplete
 from django.conf import settings
 from django.contrib.auth import get_user_model
@@ -12,12 +12,14 @@ from django.core.files.images import ImageFile
 from django.db.models import Case, When
 from django.http import HttpRequest, HttpResponse
 from django.shortcuts import render
+from django.template.loader import render_to_string
 from django.urls import resolve
 from django.utils.text import slugify
 from django.views import View
 from django.views.generic import DetailView, UpdateView
 from django.views.generic.detail import SingleObjectMixin
 from django.views.generic.edit import CreateView
+from django_htmx.http import trigger_client_event
 from markdown_it import MarkdownIt
 from rest_framework import status
 from rest_framework.decorators import action
@@ -28,15 +30,15 @@ from rest_framework.mixins import (
     RetrieveModelMixin,
     UpdateModelMixin,
 )
-
 from rest_framework.parsers import FormParser, MultiPartParser
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework.viewsets import GenericViewSet
 from taggit.models import Tag
 
+from ...utils import vcard_util
 from ..filters import ProfileFilter
-from ..forms import ProfileUpdateForm, ProfileCreateForm
+from ..forms import ProfileCreateForm, ProfileUpdateForm
 from ..models import Cluster, Profile
 from .serializers import (
     ClusterSerializer,
@@ -44,7 +46,6 @@ from .serializers import (
     ProfileSerializer,
     TagSerializer,
 )
-from ...utils import vcard_util
 
 User = get_user_model()
 
@@ -345,20 +346,17 @@ class ProfileEditView(LoginRequiredMixin, PermissionRequiredMixin, UpdateView):
         self.object = self.get_object()
         form = self.get_form()
 
-        context = self.get_context_data(object=self.object)
-
         if request.htmx:
             if form.is_valid():
                 # we're happy with the update, tell the modal to close and reload
                 # our profile page
-                import json
-
                 form.save()
                 return HttpResponse(
                     headers={"Hx-Trigger": json.dumps({"close-modal": True})}
                 )
 
             else:
+                # there's an error, so we need to re-render the form
                 self.template_name = "_profile_edit_modal.html"
                 return self.render_to_response({"form": form})
 
