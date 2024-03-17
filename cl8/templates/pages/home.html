@@ -1,6 +1,38 @@
 {% extends "base.html" %}
 {% load static widget_tweaks %}
 {% block content %}
+
+  <style>
+
+  dialog {
+    /* Override some builtins that limit us: */
+    max-width: 70vw;
+    width: calc(100vw - 40px);
+    height: calc(100vh - 40px);
+
+    
+    /* Fade in: */
+    display: flex;  /* for some reason, display: block disables the transition. */
+    flex-direction: column;
+    opacity: 0;
+    transition: opacity 0.15s;
+    pointer-events: none; /* necessary or the main page becomes inaccessible after closing dialog */
+}
+
+
+
+dialog[open] {
+    opacity: 1;
+    pointer-events: inherit;
+}
+
+dialog::backdrop {
+    background-color: #0008;
+}
+
+  </style>
+
+
   <main class="">
     {% comment %} add our search component spanning the full width {% endcomment %}
     <section class="search-component grid grid-cols-[1fr_minmax(auto,70rem)_1fr]">
@@ -19,7 +51,7 @@
                   {% comment %} <p>
                     <label class="inline-block w-100 mr-8 text-xl" for="{{ profile_filter.form.bio.id_for_label }}">Showing profile results matching:</label>
                   </p> {% endcomment %}
-                  {% render_field profile_filter.form.bio hx-get="/" hx-trigger="keyup changed delay:0.1s," hx-target=".sidebar" class="text-xl min-w-[100%]" hx-sync="closest form:abort" %}
+                  {% render_field profile_filter.form.bio hx-get="/" hx-trigger="keyup changed delay:0.1s" hx-target=".sidebar" class="text-xl min-w-[100%]" hx-sync="closest form:abort" %}
                 </div>
                 <div>
                   <button class="btn mt-4 lg:mt-0 lg:ml-4" type="submit">Search</button>
@@ -56,7 +88,13 @@
         <div class="sidebar transition-all border {% if hide_profile_list %}hidden{% endif %} lg:inline"
              style="max-height: 100vh">{% include "pages/_paginated_profiles.html" %}</div>
         <div id="profile-slot"
-             class="card bg-base-100 lg:col-span-2 border rounded-none {% if not hide_profile_list %}hidden{% endif %} lg:inline">
+             class="card bg-base-100 lg:col-span-2 border rounded-none {% if not hide_profile_list %}hidden{% endif %} lg:inline"
+              hx-trigger="save-profile-change from:body"
+              hx-get="."
+              hx-target="#profile-slot"
+              hx-swap="innerHTML"
+              >
+             
           {% if profile %}
             {% comment %} show the profile with all the tags, and details {% endcomment %}
             {% include '_profile.html' %}
@@ -107,6 +145,7 @@
       // so we use the vanilla js version
       document.body.addEventListener("update-profile", function(evt) {
         console.debug({detail:evt.detail})
+        
         const profileSlot = htmx.find("#profile-slot")
         const profileList = htmx.find(".sidebar")
 
@@ -143,9 +182,6 @@
     }
     addlistenersForActiveTags()
 
-  
-
-
   document.body.addEventListener('active-tags-changed', (event) => {
     console.debug("active-tags-changed")
     console.debug({event })
@@ -161,7 +197,6 @@
     // the DOM elements
     addlistenersForActiveTags()
   })
-
 
   </script>
 {% endblock scripts %}
