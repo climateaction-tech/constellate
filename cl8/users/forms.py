@@ -40,11 +40,12 @@ class UserCreationForm(auth_forms.UserCreationForm):
 
 class ProfileUpdateForm(forms.ModelForm):
     name = forms.CharField()
-    # email = forms.EmailField()
 
     tags = ModelMultipleChoiceField(
         queryset=taggit_models.Tag.objects.all(),
-        widget=autocomplete.ModelSelect2Multiple(url="tag-autocomplete-with-create"),
+        widget=autocomplete.ModelSelect2Multiple(
+            url="tag-autocomplete-with-create", attrs={"dropdownParent": "$('dialog')"}
+        ),
         required=False,
     )
 
@@ -70,6 +71,19 @@ class ProfileUpdateForm(forms.ModelForm):
             "facebook",
             "visible",
         ]
+
+
+class ProfileModalUpdateForm(ProfileUpdateForm):
+    """
+    A variant of the Profile Update form that is used in a modal dialog,
+    and a result uses the TomSelect widget for tag selection and creation
+    instead of the select2 widget specified in the ProfileUpdateForm
+    """
+
+    tags = ModelMultipleChoiceField(
+        queryset=taggit_models.Tag.objects.all(),
+        required=False,
+    )
 
 
 class ProfileCreateForm(forms.ModelForm):

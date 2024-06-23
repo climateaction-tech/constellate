@@ -1,6 +1,5 @@
 import json
 import logging
-
 from dal import autocomplete
 from django.conf import settings
 from django.contrib.auth import get_user_model
@@ -38,7 +37,7 @@ from taggit.models import Tag
 
 from ...utils import vcard_util
 from ..filters import ProfileFilter
-from ..forms import ProfileCreateForm, ProfileUpdateForm
+from ..forms import ProfileCreateForm, ProfileUpdateForm, ProfileModalUpdateForm
 from ..models import Cluster, Profile
 from .serializers import (
     ClusterSerializer,
@@ -249,6 +248,7 @@ class ProfileDetailView(LoginRequiredMixin, DetailView):
         context = self.get_context_data(object=self.object)
 
         if request.htmx:
+            # just return the profile, not the full page
             self.template_name = "_profile.html"
             response = self.render_to_response(context)
 
@@ -329,6 +329,7 @@ class ProfileEditView(LoginRequiredMixin, PermissionRequiredMixin, UpdateView):
             "name": self.object.user.name,
             "email": self.object.user.email,
         }
+        kwargs["prefix"] = "editform"
         return kwargs
 
     def get(self, request, *args, **kwargs):
@@ -344,9 +345,11 @@ class ProfileEditView(LoginRequiredMixin, PermissionRequiredMixin, UpdateView):
     def post(self, request, *args, **kwargs):
 
         self.object = self.get_object()
-        form = self.get_form()
 
         if request.htmx:
+            # we need a different form for the modal
+            self.form_class = ProfileModalUpdateForm
+            form = self.get_form()
             if form.is_valid():
                 # we're happy with the update, tell the modal to close and reload
                 # our profile page
@@ -360,6 +363,7 @@ class ProfileEditView(LoginRequiredMixin, PermissionRequiredMixin, UpdateView):
                 self.template_name = "_profile_edit_modal.html"
                 return self.render_to_response({"form": form})
 
+        form = self.get_form()
         return super().post(request, *args, **kwargs)
 
 
