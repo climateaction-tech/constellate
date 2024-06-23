@@ -15,15 +15,6 @@ from cl8.users.models import Cluster, Constellation, Profile
 User = get_user_model()
 
 
-class ProfileAdminForm(ModelForm):
-    tags = TagField(required=False, widget=LabelWidget)
-    # clusters = TagField(
-    #     required=False,
-    #     widget=LabelWidget(model=Cluster),
-    #     help_text="Clusters the user wants to be included in",
-    # )
-
-
 @admin.register(User)
 class UserAdmin(auth_admin.UserAdmin):
     form = UserChangeForm
@@ -79,7 +70,6 @@ class UserAdmin(auth_admin.UserAdmin):
 # @admin.register(Profile, site=constellation_admin)
 @admin.register(Profile)
 class ProfileAdmin(admin.ModelAdmin):
-    form = ProfileAdminForm
     list_display = ["name", "email", "visible"]
     search_fields = ["user__name", "user__email", "tags__name"]
     actions = ["make_visible", "make_invisible", "send_invite_mail"]
