@@ -38,14 +38,14 @@ class UserCreationForm(auth_forms.UserCreationForm):
         raise ValidationError(self.error_messages["duplicate_username"])
 
 
+from .widgets import CustomClearableFileInput
+
+
 class ProfileUpdateForm(forms.ModelForm):
     name = forms.CharField()
 
     tags = ModelMultipleChoiceField(
         queryset=taggit_models.Tag.objects.all(),
-        widget=autocomplete.ModelSelect2Multiple(
-            url="tag-autocomplete-with-create", attrs={"dropdownParent": "$('dialog')"}
-        ),
         required=False,
     )
 
@@ -71,6 +71,16 @@ class ProfileUpdateForm(forms.ModelForm):
             "facebook",
             "visible",
         ]
+        widgets = {
+            "photo": CustomClearableFileInput,
+        }
+
+    class Media:
+        css = {"all": ("css/tom-select.css",)}
+        js = (
+            "js/tom-select.complete.js",
+            "js/profile-form-tomselect.js",
+        )
 
 
 class ProfileModalUpdateForm(ProfileUpdateForm):
@@ -84,6 +94,13 @@ class ProfileModalUpdateForm(ProfileUpdateForm):
         queryset=taggit_models.Tag.objects.all(),
         required=False,
     )
+
+    class Media:
+        css = {"all": ("css/tom-select.css",)}
+        js = (
+            "js/tom-select.complete.js",
+            "js/profile-form-tomselect.js",
+        )
 
 
 class ProfileCreateForm(forms.ModelForm):
