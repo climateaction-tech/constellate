@@ -37,9 +37,7 @@
     <section>
       <div class="card search-block border rounded-none">
         <div class="card-body">
-          <form id="filter-form" method="get" hx-get="/"
-            hx-trigger="submit, htmx:confirm from:#id_tags, htmx:confirm from:#id_bio, toggle-tag from:body"
-            hx-target=".sidebar" hx-push-url="true">
+          <form id="filter-form" method="get" hx-get="/" hx-trigger="submit, htmx:confirm from:#id_tags, htmx:confirm from:#id_bio, toggle-tag from:body" hx-target=".sidebar" hx-push-url="true">
             <div class="grid grid-cols-1 lg:grid-cols-[1fr_10rem]">
               <div>
                 {% comment %} <p>
@@ -118,13 +116,10 @@
 {{ block.super }}
 
 
-<script type="text/javascript" src="{% static 'admin/js/vendor/jquery/jquery.js' %}"></script>
+
 {{ profile_filter.form.media }}
 
-<script src="{% static 'js/htmx.v1.9.8.min.js' %}" defer></script>
-
-<link href="https://cdn.jsdelivr.net/npm/tom-select/dist/css/tom-select.css" rel="stylesheet">
-<script src="https://cdn.jsdelivr.net/npm/tom-select/dist/js/tom-select.complete.js"></script>
+<script src="{% static 'js/htmx.v1.9.10.min.js' %}" defer></script>
 
 <script>
   document.addEventListener("DOMContentLoaded", (event) => {
