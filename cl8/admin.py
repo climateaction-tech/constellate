@@ -17,6 +17,10 @@ from django.http import HttpResponse
 from django.shortcuts import redirect, render
 from django.urls import path, reverse
 
+from waffle.models import Flag, Sample, Switch
+from waffle.admin import FlagAdmin, SampleAdmin, SwitchAdmin
+
+
 from cl8.users.importers import CSVImporter, FireBaseImporter
 from cl8.users.models import Constellation, Profile, User
 
@@ -296,6 +300,10 @@ site.register(
 
 # Used for tags
 site.register(taggit.models.Tag, taggit.admin.TagAdmin)
+
+site.register(Flag, FlagAdmin)
+site.register(Sample, SampleAdmin)
+site.register(Switch, SwitchAdmin)
 
 
 site.register(Constellation, ConstellationAdmin)
