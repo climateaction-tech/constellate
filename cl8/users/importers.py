@@ -712,7 +712,7 @@ def add_bio_to_profile_from_join_request(profile: Profile, join_req: CATJoinRequ
     """
     bio = profile.bio
     if bio:
-        profile.bio = f"{bio}\n\n---\n\n{join_req.bio_text_from_join_request()}"
+        profile.bio = f"{bio}\n\n---\n\n{join_req.bio_text_from_join_request()}\n\n---"
     else:
         profile.bio = join_req.bio_text_from_join_request()
     profile.save()
@@ -755,6 +755,7 @@ def add_cat_responses_to_profiles():
             prof.bio = join_req.bio_text_from_join_request()
             prof.save()
 
+
 def gsheet_join_request_for_email(email: str) -> CATJoinRequest:
     """
     Return the matching join request for the provided email address, from
@@ -764,12 +765,14 @@ def gsheet_join_request_for_email(email: str) -> CATJoinRequest:
     gsheet = gc.open_by_key(settings.GSPREAD_KEY)
     responses_worksheet = gsheet.worksheet(CAT_RESPONSES_WORKSHEET)
 
-    matching_cell_for_email = responses_worksheet.find(email)
+    matching_cells_for_email = responses_worksheet.findall(email)
 
-    if not matching_cell_for_email:
-        raise NoMatchingCAT
+    if not matching_cells_for_email:
+        raise NoMatchingCAT(email)
 
-    response_values = responses_worksheet.row_values(matching_cell_for_email.row)
+    last_matching_cell = matching_cells_for_email[-1]
+
+    response_values = responses_worksheet.row_values(last_matching_cell.row)
     join_request = create_join_request_from_row(response_values)
 
     if join_request:
