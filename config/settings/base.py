@@ -1,6 +1,7 @@
 """
 Base settings to build other settings files upon.
 """
+
 from pathlib import Path
 
 import environ
@@ -90,6 +91,7 @@ THIRD_PARTY_APPS = [
     "theme",
     "django_extensions",
     "widget_tweaks",
+    "waffle",
 ]
 
 LOCAL_APPS = [
@@ -178,6 +180,7 @@ MIDDLEWARE = [
     "cl8.users.middleware.ConstellationMiddleware",
     "allauth.account.middleware.AccountMiddleware",
     "django_htmx.middleware.HtmxMiddleware",
+    "waffle.middleware.WaffleMiddleware",
 ]
 
 # STATIC
