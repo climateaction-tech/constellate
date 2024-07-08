@@ -50,6 +50,7 @@ pyairtable = "*"
 pytest-watch = "*"
 vobject = "*"
 django-allauth = {extras = ["socialaccount"], version = "*"}
+django-waffle = "*"
 
 [dev-packages]
 mypy = "*"

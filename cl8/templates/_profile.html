@@ -1,4 +1,4 @@
-{% load gravatar %}
+{% load gravatar waffle_tags %}
 <div class="p-4 profile">
     <button class="btn btn-square btn-outline absolute right-0 top-0 mr-4 mt-4"
             type="button"
@@ -51,55 +51,57 @@
                        href="https://linkedin.com/in/{{ profile.linkedin }}">LinkedIn</a>
                 {% endif %}
             </p>
+            {% flag "vcard_download" %}
             <p class="mb-0 text-lg">
                 <a href="{% url 'profile-vcard' profile.short_id %}"
                    class="text-blue-700"
                    download>Get contact</a>
             </p>
-            {% if can_edit %}
-                <a href="{% url 'profile-edit' profile.short_id %}"
-                   hx-get="{% url 'profile-edit' profile.short_id %}"
-                   hx-target="body"
-                   hx-swap="beforeend"
-                   class="btn btn-sm mt-2 mb-2 max-w-xs">Edit</a>
-            {% endif %}
-        </div>
-    </div>
-    <div class="px-0">
-        <h3 class="font-bold">Bio</h3>
-        {% if profile_rendered_bio %}
-            {% comment %} <h3>Bio</h3> {% endcomment %}
-            <div class="prose">{{ profile_rendered_bio|safe }}</div>
+        {% endflag %}
+        {% if can_edit %}
+            <a href="{% url 'profile-edit' profile.short_id %}"
+               hx-get="{% url 'profile-edit' profile.short_id %}"
+               hx-target="body"
+               hx-swap="beforeend"
+               class="btn btn-sm mt-2 mb-2 max-w-xs">Edit</a>
         {% endif %}
-        <div class="tag-listings mt-4">
-            {% if grouped_tags %}
-                {% for tag_group, tags in grouped_tags.items %}
-                    <h3>{{ tag_group }}</h3>
-                    <p>
-                        {% for tag_dict in tags %}
-                            <button type="button"
-                                    class="badge text-sm my-2 mx-1 p-3 {% if tag_dict.tag.id in active_tag_ids %}bg-blue-500{% endif %}"
-                                    data-tag-name="{{ tag_dict.name }}"
-                                    data-tag-group="{{ tag_group }}"
-                                    data-tag-id="{{ tag_dict.tag.id }}">{{ tag_dict.name }}</button>
-                        {% endfor %}
-                    </p>
-                {% endfor %}
-            {% endif %}
-            {% if ungrouped_tags %}
-                {% comment %} <h3>Tags</h3> {% endcomment %}
+    </div>
+</div>
+<div class="px-0">
+    <h3 class="font-bold">Bio</h3>
+    {% if profile_rendered_bio %}
+        {% comment %} <h3>Bio</h3> {% endcomment %}
+        <div class="prose">{{ profile_rendered_bio|safe }}</div>
+    {% endif %}
+    <div class="tag-listings mt-4">
+        {% if grouped_tags %}
+            {% for tag_group, tags in grouped_tags.items %}
+                <h3>{{ tag_group }}</h3>
                 <p>
-                    {% for tag_dict in ungrouped_tags %}
+                    {% for tag_dict in tags %}
                         <button type="button"
-                                class="badge text-xs my-2 mx-1 p-3 {% if tag_dict.tag.id in active_tag_ids %}bg-blue-500{% endif %}"
+                                class="badge text-sm my-2 mx-1 p-3 {% if tag_dict.tag.id in active_tag_ids %}bg-blue-500{% endif %}"
                                 data-tag-name="{{ tag_dict.name }}"
                                 data-tag-group="{{ tag_group }}"
                                 data-tag-id="{{ tag_dict.tag.id }}">{{ tag_dict.name }}</button>
                     {% endfor %}
                 </p>
-            {% endif %}
-        </div>
+            {% endfor %}
+        {% endif %}
+        {% if ungrouped_tags %}
+            {% comment %} <h3>Tags</h3> {% endcomment %}
+            <p>
+                {% for tag_dict in ungrouped_tags %}
+                    <button type="button"
+                            class="badge text-xs my-2 mx-1 p-3 {% if tag_dict.tag.id in active_tag_ids %}bg-blue-500{% endif %}"
+                            data-tag-name="{{ tag_dict.name }}"
+                            data-tag-group="{{ tag_group }}"
+                            data-tag-id="{{ tag_dict.tag.id }}">{{ tag_dict.name }}</button>
+                {% endfor %}
+            </p>
+        {% endif %}
     </div>
+</div>
 </div>
 <script>
 // when a user clicks on a tag, emit an event listing the nane of the tag being clicked
