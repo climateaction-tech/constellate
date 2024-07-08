@@ -13,7 +13,11 @@ class SlackOpenIdConnectAdapter(OAuth2Adapter):
     flow as opposed to the deprecated auth2, identity-based flow.
     """
 
-    # setting thids idea
+    # we can't refer to the SlackOpenIdConnectProvider class here
+    # as it has to refer to this adapter in its own class,
+    # creating a circular import.
+    # So, we hardcode the provider_id in the OAuth2Adapter as well as
+    # the provider class
     provider_id = "slack_openid_connect"
 
     access_token_url = "https://slack.com/api/openid.connect.token"
