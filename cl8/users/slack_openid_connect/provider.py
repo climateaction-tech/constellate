@@ -1,7 +1,12 @@
+from allauth.account.models import EmailAddress
 from allauth.socialaccount.providers.oauth2.provider import OAuth2Provider
 from allauth.socialaccount.providers.slack.provider import SlackAccount
 
-from allauth.account.models import EmailAddress
+# We have to override this import now, to use the correct id for
+# generating a callback url to complete signing in.
+
+# from allauth.socialaccount.providers.slack.views import SlackOAuth2Adapter
+from .views import SlackOpenIdConnectAdapter
 
 
 class SlackOpenIdConnectProvider(OAuth2Provider):
@@ -14,6 +19,8 @@ class SlackOpenIdConnectProvider(OAuth2Provider):
     id = "slack_openid_connect"
     name = "Slack Open ID Connect"
     account_class = SlackAccount
+    oauth2_adapter_class = SlackOpenIdConnectAdapter
+    # oauth2_adapter_class = SlackOAuth2Adapter
 
     def extract_uid(self, data):
         """
