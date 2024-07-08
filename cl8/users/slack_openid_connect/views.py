@@ -7,9 +7,6 @@ from allauth.socialaccount.providers.oauth2.views import (
 )
 
 
-from .provider import SlackOpenIdConnectProvider
-
-
 class SlackOpenIdConnectAdapter(OAuth2Adapter):
     """
     An updated slack adapter designed to use the updated openid connect
@@ -17,7 +14,7 @@ class SlackOpenIdConnectAdapter(OAuth2Adapter):
     """
 
     # setting thids idea
-    provider_id = SlackOpenIdConnectProvider.id
+    provider_id = "slack_openid_connect"
 
     access_token_url = "https://slack.com/api/openid.connect.token"
     identity_url = "https://slack.com/api/openid.connect.userInfo"
