@@ -12,7 +12,7 @@
         </svg>
     </button>
     <div class="grid lg:grid-cols-[1fr]">
-        <div class="">
+        <div>
             {% if profile.photo %}
                 <img src="{{ profile.detail_photo }}"
                      width="150"
@@ -64,27 +64,20 @@
                hx-target="body"
                hx-swap="beforeend"
                class="btn btn-sm mt-2 mb-2 max-w-xs">Edit</a>
+            {% flag "cat_joinform_import" %}
             <form action="{% url 'profile-cat-joinform-import' profile.short_id %}"
                   method="post"
                   class="inline-block">
                 {% csrf_token %}
                 <button type="submit" class="btn btn-sm mt-2 mb-2 max-w-xs">Import CAT Joiningform Info</button>
             </form>
-        {% endif %}
-    </div>
-</div>
-<div class="px-0">
-    {% if profile_rendered_bio %}
-        {% comment %} <h3>Bio</h3> {% endcomment %}
-        <div class="prose">{{ profile_rendered_bio|safe }}</div>
+        {% endflag %}
     {% endif %}
+</div>
 </div>
 <div class="px-0">
     <h3 class="font-bold">Bio</h3>
-    {% if profile_rendered_bio %}
-        {% comment %} <h3>Bio</h3> {% endcomment %}
-        <div class="prose">{{ profile_rendered_bio|safe }}</div>
-    {% endif %}
+    {% if profile_rendered_bio %}<div class="prose">{{ profile_rendered_bio|safe }}</div>{% endif %}
     <div class="tag-listings mt-4">
         {% if grouped_tags %}
             {% for tag_group, tags in grouped_tags.items %}

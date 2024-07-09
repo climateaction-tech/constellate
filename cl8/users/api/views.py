@@ -300,6 +300,16 @@ class ProfileCATJoinFormImportView(View, LoginRequiredMixin, SingleObjectMixin):
     def post(self, request, *args, **kwargs):
         profile = self.get_object()
 
+        def _report_failure(request: HttpRequest):
+            messages.add_message(
+                request,
+                messages.WARNING,
+                (
+                    "Sorry, we couldn't find any matching joining form information"
+                    " for this user. "
+                ),
+            )
+
         if request.user.is_admin() or request.user == profile.user:
             # import the corresponding information from google sheets
             try:
@@ -313,25 +323,11 @@ class ProfileCATJoinFormImportView(View, LoginRequiredMixin, SingleObjectMixin):
             except NoMatchingCAT:
                 # add message to say no matching CAT found, and redirect back
                 # to the profile view url
-                messages.add_message(
-                    request,
-                    messages.WARNING,
-                    (
-                        "Sorry, we couldn't find any matching joining form information"
-                        " for this user. "
-                    ),
-                )
+                _report_failure(request)
 
             return redirect(profile.get_absolute_url())
 
-        messages.add_message(
-            request,
-            messages.WARNING,
-            (
-                "Sorry, we couldn't find a matching joining form information"
-                " for this user. "
-            ),
-        )
+        _report_failure(request)
 
         return redirect(profile.get_absolute_url())
 
