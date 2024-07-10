@@ -7,7 +7,7 @@ from django.core.exceptions import ValidationError
 from django.forms import ModelMultipleChoiceField
 from django.utils.translation import gettext_lazy as _
 from taggit import models as taggit_models
-
+from .widgets import CustomClearableFileInput
 from .importers import safe_username
 from .models import Profile
 
@@ -36,9 +36,6 @@ class UserCreationForm(auth_forms.UserCreationForm):
             return username
 
         raise ValidationError(self.error_messages["duplicate_username"])
-
-
-from .widgets import CustomClearableFileInput
 
 
 class ProfileUpdateForm(forms.ModelForm):

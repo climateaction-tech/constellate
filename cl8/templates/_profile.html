@@ -72,7 +72,15 @@
                 <button type="submit" class="btn btn-sm mt-2 mb-2 max-w-xs">Import CAT Joiningform Info</button>
             </form>
         {% endflag %}
-    {% endif %}
+        {% flag "cat_airtable_import" %}
+        <form action="{% url 'profile-cat-airtable-import' profile.short_id %}"
+              method="post"
+              class="inline-block">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-sm mt-2 mb-2 max-w-xs">Import CAT Directory Data Info</button>
+        </form>
+    {% endflag %}
+{% endif %}
 </div>
 </div>
 <div class="px-0">

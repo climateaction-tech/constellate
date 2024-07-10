@@ -17,6 +17,7 @@ from cl8.users.tests.factories import (
 
 register(UserFactory)
 register(FakePhotoProfileFactory)
+register(ProfileFactory)
 
 
 @pytest.fixture(autouse=True)

@@ -14,6 +14,7 @@ from cl8.users.api.views import (
     ProfileVcardView,
     ProfileEditView,
     ProfileCATJoinFormImportView,
+    ProfileCATAirtableImportView,
     TagAutoCompleteView,
     homepage,
 )
@@ -31,6 +32,11 @@ urlpatterns = [
         "profiles/<slug>/cat-joinform-import",
         ProfileCATJoinFormImportView.as_view(),
         name="profile-cat-joinform-import",
+    ),
+    path(
+        "profiles/<slug>/cat-airtable-import",
+        ProfileCATAirtableImportView.as_view(),
+        name="profile-cat-airtable-import",
     ),
     #
     # Django Admin, use {% url 'admin:index' %}

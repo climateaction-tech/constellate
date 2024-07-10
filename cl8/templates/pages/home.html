@@ -1,7 +1,7 @@
 {% extends "base.html" %}
-{% load static widget_tweaks %}
+{% load static widget_tweaks daisy_helpers %}
 {% block content %}
-<style>
+  <style>
   dialog {
     /* Override some builtins that limit us: */
     max-width: 70vw;
@@ -26,108 +26,100 @@
   dialog::backdrop {
     background-color: #0008;
   }
-</style>
-<main>
-  {% comment %} add our search component spanning the full width {% endcomment %}
-  <section class="search-component grid grid-cols-[1fr_minmax(auto,70rem)_1fr]">
-    {% comment %} we have two sets of empty divs either side of our main search component to center it {% endcomment %}
-    {% comment %} djlint:off{% endcomment %}
+  </style>
+  <main>
+    {% comment %} add our search component spanning the full width {% endcomment %}
+    <section class="search-component grid grid-cols-[1fr_minmax(auto,70rem)_1fr]">
+      {% comment %} we have two sets of empty divs either side of our main search component to center it {% endcomment %}
+      {% comment %} djlint:off{% endcomment %}
     <div></div>
-    {% comment %} djlint:on {% endcomment %}
-    <section>
-      <div class="card search-block border rounded-none">
-        <div class="card-body">
-          <form id="filter-form" method="get" hx-get="/" hx-trigger="submit, htmx:confirm from:#id_tags, htmx:confirm from:#id_bio, toggle-tag from:body" hx-target=".sidebar" hx-push-url="true">
-            <div class="grid grid-cols-1 lg:grid-cols-[1fr_10rem]">
-              <div>
-                {% comment %} <p>
-                  <label class="inline-block w-100 mr-8 text-xl"
-                    for="{{ profile_filter.form.bio.id_for_label }}">Showing profile results matching:</label>
-                </p> {% endcomment %}
-
-                {% comment %} we need these all on one line for the render_field template tag {% endcomment %}
-                {% render_field profile_filter.form.bio hx-get="/" hx-trigger="keyup changed delay:0.1s" hx-target=".sidebar" class="text-xl min-w-[100%]" hx-sync="closest form:abort" %}
-              </div>
-              <div>
-                <button class="btn mt-4 lg:mt-0 lg:ml-4" type="submit">Search</button>
-              </div>
-            </div>
-            <span class="hidden">{% render_field profile_filter.form.tags %}</span>
-          </form>
-          <div class="active-tags">{% include "_active_tags_list.html" %}</div>
-          <div class="profile-count">
-            {% if active_search %}
-            <p class="text-xl inline-block ">
-              <span data-profile-count="{{ paginated_profiles|length }}">{{ paginated_profiles|length }}</span> matching
-              profile{{ paginated_profiles|pluralize }} found
-            </p>
-            {% endif %}
-          </div>
-          <div class="messages">
-              {% if messages %}
-              <ul class="messages">
-                  {% for message in messages %}
-                  <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
-                  {% endfor %}
-              </ul>
-              {% endif %}
-            </div>
-        </div>
-      </div>
-    </section>
-    {% comment %} djlint:off{% endcomment %}
+{% comment %} djlint:on {% endcomment %}
+<section>
+<div class="card search-block border rounded-none">
+<div class="card-body">
+<form id="filter-form" method="get" hx-get="/" hx-trigger="submit, htmx:confirm from:#id_tags, htmx:confirm from:#id_bio, toggle-tag from:body" hx-target=".sidebar" hx-push-url="true">
+<div class="grid grid-cols-1 lg:grid-cols-[1fr_10rem]">
+<div>
+{% comment %} <p>
+                  <label class="inline-block w-100 mr-8 text-xl" for="{{ profile_filter.form.bio.id_for_label }}">Showing profile results matching:</label>
+</p> {% endcomment %}
+{% comment %} we need these all on one line for the render_field template tag {% endcomment %}
+{% render_field profile_filter.form.bio hx-get="/" hx-trigger="keyup changed delay:0.1s" hx-target=".sidebar" class="text-xl min-w-[100%]" hx-sync="closest form:abort" %}
+</div>
+<div>
+<button class="btn mt-4 lg:mt-0 lg:ml-4" type="submit">Search</button>
+</div>
+</div>
+<span class="hidden">{% render_field profile_filter.form.tags %}</span>
+</form>
+<div class="active-tags">{% include "_active_tags_list.html" %}</div>
+<div class="profile-count">
+{% if active_search %}
+<p class="text-xl inline-block ">
+<span data-profile-count="{{ paginated_profiles|length }}">{{ paginated_profiles|length }}</span> matching
+profile{{ paginated_profiles|pluralize }} found
+</p>
+{% endif %}
+</div>
+<div class="messages">
+{% if messages %}
+<ul class="messages">
+{% for message in messages %}
+<li {% if message.tags %}class="border p-2 {{ message.tags|message_tag_to_color }}"{% endif %}>{{ message }}</li>
+{% endfor %}
+</ul>
+{% endif %}
+</div>
+</div>
+</div>
+</section>
+{% comment %} djlint:off{% endcomment %}
     <div></div>
-    {% comment %} djlint:on {% endcomment %}
-    {% comment %} close search component {% endcomment %}
-  </section>
-  {% comment %} main content {% endcomment %}
-  <section class="grid grid-cols-[1fr_minmax(auto,70rem)_1fr]">
-    {% comment %} djlint:off{% endcomment %}
+{% comment %} djlint:on {% endcomment %}
+{% comment %} close search component {% endcomment %}
+</section>
+{% comment %} main content {% endcomment %}
+<section class="grid grid-cols-[1fr_minmax(auto,70rem)_1fr]">
+{% comment %} djlint:off{% endcomment %}
     <div></div>
-    {% comment %} djlint:on {% endcomment %}
-    {% comment %} add our two columns for the sidebar and profile {% endcomment %}
-    <section class="column-wrapper  grid grid-cols-1 lg:grid-cols-3">
-      {% comment %} list the active tags
-      {% endcomment %}
-      {% comment %}
+{% comment %} djlint:on {% endcomment %}
+{% comment %} add our two columns for the sidebar and profile {% endcomment %}
+<section class="column-wrapper  grid grid-cols-1 lg:grid-cols-3">
+{% comment %} list the active tags
+{% endcomment %}
+{% comment %}
       We only want to hide the list of profiles when there is NO filtered search
       and when a user is not selected.
-      {% endcomment %}
-      <div class="sidebar transition-all border {% if hide_profile_list %}hidden{% endif %} lg:inline"
-        style="max-height: 100vh">
-        {% include "pages/_paginated_profiles.html" %}
-      </div>
-      <div id="profile-slot"
-        class="card bg-base-100 lg:col-span-2 border rounded-none {% if not hide_profile_list %}hidden{% endif %} lg:inline"
-        hx-trigger="save-profile-change from:body" hx-get="." hx-target="#profile-slot" hx-swap="innerHTML">
-        {% if profile %}
-        {% comment %} show the profile with all the tags, and details {% endcomment %}
-        {% include "_profile.html" %}
-        {% else %}
-        {% comment %} otherwise show a blank "start" view with instructions {% endcomment %}
-        {% include "_profile_empty.html" %}
-        {% endif %}
-      </div>
-    </section>
-    {% comment %} djlint:off{% endcomment %}
+{% endcomment %}
+<div class="sidebar transition-all border {% if hide_profile_list %}hidden{% endif %} lg:inline" style="max-height: 100vh">
+{% include "pages/_paginated_profiles.html" %}
+</div>
+<div id="profile-slot" class="card bg-base-100 lg:col-span-2 border rounded-none {% if not hide_profile_list %}hidden{% endif %} lg:inline" hx-trigger="save-profile-change from:body" hx-get="." hx-target="#profile-slot" hx-swap="innerHTML">
+{% if profile %}
+{% comment %} show the profile with all the tags, and details {% endcomment %}
+{% include "_profile.html" %}
+{% else %}
+{% comment %} otherwise show a blank "start" view with instructions {% endcomment %}
+{% include "_profile_empty.html" %}
+{% endif %}
+</div>
+</section>
+{% comment %} djlint:off{% endcomment %}
     <div></div>
-    {% comment %} djlint:on {% endcomment %}
-    {% comment %} close maint content section {% endcomment %}
-  </section>
-  {% comment %}
+{% comment %} djlint:on {% endcomment %}
+{% comment %} close maint content section {% endcomment %}
+</section>
+{% comment %}
   Add hidden version of empty profile content, used when clearing a select
   profile
-  {% endcomment %}
-  <div id="empty-profile" class="hidden">{% include "_profile_empty.html" %}</div>
+{% endcomment %}
+<div id="empty-profile" class="hidden">{% include "_profile_empty.html" %}</div>
 </main>
 {% endblock content %}
 {% block scripts %}
 {{ block.super }}
-
 {{ profile_filter.form.media }}
-
 <script src="{% static 'js/htmx.v1.9.10.min.js' %}" defer></script>
-
 <script>
   document.addEventListener("DOMContentLoaded", (event) => {
     console.debug("DOM fully loaded and parsed");

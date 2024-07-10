@@ -3,9 +3,10 @@ import logging
 from collections import OrderedDict
 from datetime import datetime
 from pathlib import Path
-from typing import List
+from typing import List, Optional
 
 import gspread
+import pyairtable
 import shortuuid
 import slack
 from allauth.account.models import EmailAddress
@@ -16,7 +17,6 @@ from cl8.users.models import CATJoinRequest
 
 from ..utils.pics import fetch_user_pic
 from .models import Profile, User
-import pyairtable
 
 logger = logging.getLogger(__file__)
 logger.setLevel(logging.INFO)
@@ -26,10 +26,38 @@ class NoEmailFound(Exception):
     pass
 
 
-def safe_username() -> str:
+class EmptyJoinRequestCAT(Exception):
+    """
+    Used when a join request has no timestmap, or other usable info.
+    """
+
+    pass
+
+
+class DuplicateJoinRequest(Exception):
+    """
+    Used when a join request is using an email we have already seen
+    """
+
+    pass
+
+
+class NoMatchingCAT(Exception):
+    """
+    Used when matching CAT could be found for the provided email address.
+    """
+
+    pass
+
+
+def safe_username(email: str = None) -> str:
     """
     Provide a shortuuid based username
     """
+    # make a hash the email with a fast algorithm
+    if email:
+        return shortuuid.uuid(name=email)[:8]
+
     return shortuuid.uuid()[:8]
 
 
@@ -489,6 +517,29 @@ class CATAirtableImporter:
         self.rows = rows
         return rows
 
+    def fetch_user_data_from_airtable_by_email(self, email) -> Optional[dict]:
+        """
+        Fetch a user dict matching the email address from the CAT directory
+        airtable. Returns a dict, or raises a no NoMatchingCAT exception if
+        no match found for the email address.
+        """
+        client = pyairtable.Api(self.bearer_token)
+        table = client.table(self.base, self.table)
+
+        try:
+            match_column = "{Email address}"
+            # Use the formula parameter to filter the records
+            # https://pyairtable.readthedocs.io/en/stable/api.html#pyairtable.Table.all
+            matching_record = table.first(formula=f"({match_column} = '{email}')")
+        except Exception as ex:
+            logger.warn(ex)
+
+        if matching_record:
+            return matching_record
+
+        else:
+            raise NoMatchingCAT(f"No matching record found for email address: {email}")
+
     def create_users(self, rows=None):
         if not rows:
             rows = self.rows
@@ -564,7 +615,7 @@ class CATAirtableImporter:
     def update_profile_for_row(self, row: dict):
         """
         Update profile for the given row, matching on the
-        email address. Adds the infromation listed in
+        email address. Adds the inrromation listed in
         self.expected_rows
         """
         fields = row.get("fields")
@@ -619,28 +670,18 @@ class CATAirtableImporter:
         return profile
 
 
-class NoMatchingCAT(Exception):
+def update_profile_from_airtable_for_email(email: str):
     """
-    Used when matching CAT could be found for the provided email address.
+    Fetch the data from airtable, and update the profiles
+    for the user with the matching email address.
+    Existing info will be overwritten.
+
     """
+    importer = CATAirtableImporter()
+    profile_dict = importer.fetch_user_data_from_airtable_by_email(email)
 
-    pass
-
-
-class EmptyJoinRequestCAT(Exception):
-    """
-    Used when a join request has no timestmap, or other usable info.
-    """
-
-    pass
-
-
-class DuplicateJoinRequest(Exception):
-    """
-    Used when a join request is using an email we have already seen
-    """
-
-    pass
+    updated_profile = importer.update_profile_for_row(profile_dict)
+    return updated_profile
 
 
 CAT_RESPONSES_WORKSHEET = "Form Responses 1"
