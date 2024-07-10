@@ -13,7 +13,9 @@
            hx-push-url="true">
         <div class="profile-thumb w-1/5">
           {% if profile.photo %}
-            <img src="{{ profile.thumbnail_photo }}"  class="rounded" />
+            <img src="{{ profile.thumbnail_photo }}"
+                 class="rounded"
+                 alt="Profile photo for {{ profile.name }}" />
           {% else %}
             {% gravatar profile.user.email 150 "Profile via gravatar.com" "rounded" %}
           {% endif %}

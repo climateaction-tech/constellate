@@ -1,12 +1,11 @@
 import json
 import logging
-import pathlib
 
 import pytest
 from django.conf import settings
 
 
-from .. import importers, models
+from .. import importers
 
 logger = logging.getLogger(__file__)
 logger.setLevel(logging.INFO)

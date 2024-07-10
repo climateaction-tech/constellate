@@ -1,4 +1,3 @@
-from django.template.defaultfilters import yesno
 from django import template
 
 register = template.Library()
