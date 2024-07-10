@@ -3,6 +3,10 @@
 # https://github.com/casey/just
 
 
+default:
+  just --list
+
+
 @test *options:
     pipenv run pytest {{options}}
 
