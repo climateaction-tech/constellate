@@ -590,8 +590,7 @@ class CATAirtableImporter:
         profile.visible = True
 
         airtable_id = row.get("id")
-        profile.import_id = f"airtable-"{airtable_id}"
-
+        profile.import_id = f"airtable-{airtable_id}"
 
         self.add_tags_to_profile(profile, fields)
         profile.save()
@@ -641,7 +640,7 @@ class CATAirtableImporter:
 
         if not profile.import_id:
             airtable_id = row.get("id")
-            profile.import_id = f"airtable-"{airtable_id}"
+            profile.import_id = f"airtable-{airtable_id}"
 
         self.add_tags_to_profile(profile, fields)
         profile.save()
