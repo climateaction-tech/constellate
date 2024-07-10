@@ -589,6 +589,10 @@ class CATAirtableImporter:
         profile.bio = fields.get("bio")
         profile.visible = True
 
+        airtable_id = row.get("id")
+        profile.import_id = f"airtable-"{airtable_id}"
+
+
         self.add_tags_to_profile(profile, fields)
         profile.save()
         profile.update_thumbnail_urls()
@@ -635,6 +639,10 @@ class CATAirtableImporter:
         profile.linkedin = fields.get("LinkedIn URL")
         profile.visible = True
 
+        if not profile.import_id:
+            airtable_id = row.get("id")
+            profile.import_id = f"airtable-"{airtable_id}"
+
         self.add_tags_to_profile(profile, fields)
         profile.save()
         # create different sized variants of the thumbnail
@@ -656,6 +664,7 @@ class CATAirtableImporter:
                 "Asks",
                 "Specific skills",
                 "Areas of focus",
+                "Climate Interests",
             ]
 
         for colname in columns:
