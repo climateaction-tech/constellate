@@ -47,7 +47,11 @@ from .serializers import (
     TagSerializer,
 )
 
-from ..importers import import_user_from_gsheet, NoMatchingCAT
+from ..importers import (
+    import_user_from_gsheet,
+    update_profile_from_airtable_for_email,
+    NoMatchingCAT,
+)
 
 User = get_user_model()
 
@@ -327,6 +331,49 @@ class ProfileCATJoinFormImportView(View, LoginRequiredMixin, SingleObjectMixin):
 
             return redirect(profile.get_absolute_url())
 
+        _report_failure(request)
+
+        return redirect(profile.get_absolute_url())
+
+
+class ProfileCATAirtableImportView(View, LoginRequiredMixin, SingleObjectMixin):
+    model = Profile
+    slug_field = "short_id"
+
+    http_method_names = ["post"]
+
+    def post(self, request, *args, **kwargs):
+        profile = self.get_object()
+
+        def _report_failure(request: HttpRequest):
+            messages.add_message(
+                request,
+                messages.WARNING,
+                (
+                    f"Sorry, we couldn't find any matching data for the email address to import: {profile.user.email} "
+                ),
+            )
+
+        if request.user.is_admin() or request.user == profile.user:
+            # import the corresponding information from airtable
+            try:
+                update_profile_from_airtable_for_email(profile.user.email)
+                messages.add_message(
+                    request,
+                    messages.SUCCESS,
+                    (
+                        "We've imported your information from the CAT Directory Airtable. "
+                    ),
+                )
+                return redirect(profile.get_absolute_url())
+            except NoMatchingCAT:
+                # add message to say no matching CAT found, and redirect back
+                # to the profile view url
+                _report_failure(request)
+
+            return redirect(profile.get_absolute_url())
+
+        # if the user is not an admin, or the profile owner, we should
         _report_failure(request)
 
         return redirect(profile.get_absolute_url())

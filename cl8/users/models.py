@@ -1,21 +1,21 @@
+import logging
+
+import vobject
 from django.conf import settings
 from django.contrib.auth.models import AbstractUser
+from django.contrib.sites.models import Site
 from django.core.mail import send_mail
 from django.db import models
 from django.db.models import CharField
 from django.template.loader import render_to_string
 from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
-from django.contrib.sites.models import Site
+from shortuuid.django_fields import ShortUUIDField
 from sorl.thumbnail import get_thumbnail
 from taggit.managers import TaggableManager
 from taggit.models import TagBase, TaggedItemBase
-from django.contrib.sites.models import Site
-from shortuuid.django_fields import ShortUUIDField
-import vobject
-from ..utils import vcard_util
-import logging
 
+from ..utils import vcard_util
 
 logger = logging.getLogger(__name__)
 
