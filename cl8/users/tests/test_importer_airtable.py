@@ -24,7 +24,7 @@ def airtable_dummy_user():
                 "Activism",
             ],
             "LinkedIn URL": "https://www.linkedin.com/in/mrchrisadams/",
-            "Email address": "chris@productscience.topleveldomain",
+            "Email address": "chris@example.com",
             "Specific skills": [
                 "Python",
                 "SQL",
@@ -155,7 +155,7 @@ class TestCATAirTableImporter:
         """
         importer = importers.CATAirtableImporter()
 
-        user = user_factory.create(email="chris@productscience.net")
+        user = user_factory.create(email="chris@example.com")
         profile = profile_factory.create(user=user)
         assert profile == user.profile
 
