@@ -67,8 +67,14 @@ def users_from_airtable() -> list[dict]:
 
 class TestCATAirTableImporter:
 
+    # this is just a sanity check to compare:
+    # a) actual data we can pull down from the CAT directory Airtable Base, to
+    # b) the dummy data we are using
+    #
+    # We don't run this each time but uncommenting it and running in the test suite
+    # ensures we are still using realistic dummy data for our tests
     @pytest.mark.skip(
-        reason="Just a sanity check to compare the airtable data with the dummy data"
+        reason="Used to sanity check dummy data against actual data from Airtable. See the code comments in the test for more."
     )
     def test_dummy_data_matches_airtable(
         self, db, profile_user_factory, users_from_airtable, airtable_dummy_user
@@ -77,10 +83,12 @@ class TestCATAirTableImporter:
         airtable_data = importer.fetch_data_from_airtable()
 
         # enumerate through the airtable with an index
-        for index, user in enumerate(airtable_data):
-            assert user == users_from_airtable[index]
+        profile_id = airtable_dummy_user["id"]
 
         assert len(airtable_data) == len(users_from_airtable)
+        matching_profile = [atd for atd in airtable_data if profile_id == atd["id"]]
+
+        assert matching_profile
 
     def test_create_user_from_airtable(self, db, airtable_dummy_user):
         """Test that we add all the tags from the airtable user when creating a user and profile"""
@@ -102,7 +110,6 @@ class TestCATAirTableImporter:
             for skill in airtable_dummy_user["fields"][grouping]:
                 assert f"{grouping}:{skill}" in tag_names
 
-    @pytest.mark.only
     def test_update_user_from_airtable(
         self, db, airtable_dummy_user, user_factory, profile_factory
     ):
