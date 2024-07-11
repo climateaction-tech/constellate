@@ -17,6 +17,7 @@ from cl8.users.models import CATJoinRequest
 
 from ..utils.pics import fetch_user_pic
 from .models import Profile, User
+import json
 
 logger = logging.getLogger(__file__)
 logger.setLevel(logging.INFO)
@@ -516,6 +517,17 @@ class CATAirtableImporter:
         rows = table.all()
         self.rows = rows
         return rows
+
+    def dump_data_to_json_file(self, filename: str = "airtable-directory.json"):
+        """
+        Fetch data in airtable, and write it to a local json file.
+        Used for testing to avoid making needless API calls.
+        """
+        local_airtable_data_path = settings.PROJECT_DIR / "data" / filename
+
+        data = self.fetch_data_from_airtable()
+        with open(str(local_airtable_data_path), "w") as f:
+            f.write(json.dumps(data, indent=4))
 
     def fetch_user_data_from_airtable_by_email(self, email) -> Optional[dict]:
         """
