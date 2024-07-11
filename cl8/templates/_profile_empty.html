@@ -10,7 +10,9 @@
         Want to see what people see for your profile?
         <a href="{% url 'profile-detail' request.user.profile.short_id %}">Go to your profile</a> where you can make changes.
     </h2>
-    {% comment %} hide big list of tags behind a details html element {% endcomment %}
+
+    {% flag "homepage_tag_index" %}
+    
     <details>
         <summary>See the full directory tag list</summary>
         <div class="tag-listings mt-4">
@@ -42,5 +44,7 @@
             {% endif %}
         </div>
     </details>
+
+    {% endflag %}
 </div>
 <script src="{% static 'js/profile-page.js' %}"></script>
