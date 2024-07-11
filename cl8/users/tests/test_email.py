@@ -19,6 +19,8 @@ def view_rendered_html_in_browser(string_template):
 
 @pytest.mark.django_db
 class TestTemplateEmail:
+
+    @pytest.mark.only
     def test_render_email(self, profile):
         """
         Test that the template renders with based on what we're passing into context.
