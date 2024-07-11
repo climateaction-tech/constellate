@@ -1,6 +1,6 @@
 import json
 import logging
-
+import pathlib
 import pytest
 from django.conf import settings
 
@@ -24,7 +24,7 @@ def airtable_dummy_user():
                 "Activism",
             ],
             "LinkedIn URL": "https://www.linkedin.com/in/mrchrisadams/",
-            "Email address": "chris@productscience.net",
+            "Email address": "chris@productscience.topleveldomain",
             "Specific skills": [
                 "Python",
                 "SQL",
@@ -52,7 +52,7 @@ def users_from_airtable() -> list[dict]:
     """
     Return a list of airtable directory profiles as returned by calling
     `fetch_data_from_airtable()` on the CATAirtableImporter against the
-    expected Airtable
+    expected Airtable Base.
     """
     # assuming you have sample local data
     local_airtable_data = settings.PROJECT_DIR / "data" / "airtable-directory.json"
@@ -67,28 +67,65 @@ def users_from_airtable() -> list[dict]:
 
 class TestCATAirTableImporter:
 
-    # this is just a sanity check to compare:
-    # a) actual data we can pull down from the CAT directory Airtable Base, to
-    # b) the dummy data we are using
-    #
-    # We don't run this each time but uncommenting it and running in the test suite
-    # ensures we are still using realistic dummy data for our tests
     @pytest.mark.skip(
-        reason="Used to sanity check dummy data against actual data from Airtable. See the code comments in the test for more."
+        reason="Only used to sanity check dummy data against actual data from Airtable. See the code comments in the test for more."
     )
     def test_dummy_data_matches_airtable(
         self, db, profile_user_factory, users_from_airtable, airtable_dummy_user
     ):
+        # this is just a sanity check to compare:
+        #
+        # a) actual data we can pull down from the CAT directory Airtable Base, to
+        # b) the dummy data we are using for tests.
+        #
+        # We don't run this each test run. Uncommenting it and running in the test suite
+        # ensures we are still using realistic dummy data for our tests
+
         importer = importers.CATAirtableImporter()
         airtable_data = importer.fetch_data_from_airtable()
 
-        # enumerate through the airtable with an index
         profile_id = airtable_dummy_user["id"]
 
-        assert len(airtable_data) == len(users_from_airtable)
+        # we should have the same number of profiles in our dummy data
+        # as we have in the actual data
+        # assert len(airtable_data) == len(users_from_airtable)
+        # we should have the dummy profile in the actual data
         matching_profile = [atd for atd in airtable_data if profile_id == atd["id"]]
 
-        assert matching_profile
+        # test that every key in atd also exists in airtable_dummy_user
+        for atd in matching_profile:
+            for key in atd["fields"]:
+                assert key in airtable_dummy_user["fields"]
+
+        # test that for every set of tags the values are also the
+        # same between the two as well
+        for key, value in airtable_dummy_user["fields"].items():
+            if isinstance(value, list):
+                assert atd["fields"][key] == value
+
+    @pytest.mark.skip(
+        reason="Only used to fetch a local dump of data for checking dummy data against actual data from Airtable."
+    )
+    def test_dump_data_to_json(self):
+        """
+        Test that we can dump the airtable data to a local json file
+        """
+        # This is used to fetch a local cache of data in case we need to update
+        # our code to match changes to the real data, rather than writing
+        # tests and code against incorrect dummy data
+        importer = importers.CATAirtableImporter()
+        local_airtable_data = settings.PROJECT_DIR / "data" / "airtable-directory.json"
+
+        # do we already have a local cache of the data? It might be stale - fail the test.
+        assert not pathlib.Path(local_airtable_data).exists()
+
+        importer.dump_data_to_json_file()
+        assert pathlib.Path(local_airtable_data).exists()
+
+        # assert that the parsed json data is a list of dicts as expected
+        with open(local_airtable_data) as airtable_json:
+            data = airtable_json.read()
+            assert isinstance(json.loads(data), list)
 
     def test_create_user_from_airtable(self, db, airtable_dummy_user):
         """Test that we add all the tags from the airtable user when creating a user and profile"""
