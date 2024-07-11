@@ -52,12 +52,8 @@ document.body.addEventListener("htmx:afterSettle", function (detail) {
             dialog.remove();
         });
     };
-    // remove all click listeners on the badge
     console.debug("DOM fully loaded and parsed in HTMX");
-
 
     // add click listeners to the badges
     updateProfileBadgeState()
-
-
 });
