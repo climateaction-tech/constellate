@@ -618,7 +618,7 @@ class CATAirtableImporter:
     def update_profile_for_row(self, row: dict):
         """
         Update profile for the given row, matching on the
-        email address. Adds the inrromation listed in
+        email address. Adds the information listed in
         self.expected_rows
         """
         fields = row.get("fields")
