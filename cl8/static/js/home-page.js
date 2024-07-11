@@ -38,18 +38,20 @@ function addListenersForActiveTags() {
 }
 
 /**
- *
- *
- *
+ * Toggle the selected status of a tag in response to a click event 
+ * on the tag badge.
+ * This should update the clicked badge, but also trigger the necessary 
+ * changes in the application like the list of profiles, and the state of the
+ * search component 
  * */
 function toggleTagBadge(event) {
   // we can't just bubble up a 'click' event to the parent elements
   // and use that to update the list of profiles shown, because
   // it won't reflect the updated toggle list of tags yet in the
-  // filter form.
+  // below the search input in the filter form.
+  
   // So, we have to manually update the list of active tags, and THEN
   // dispatch an event for our filter component to listen for
-  let activeTags = document.querySelector('#id_tags')
 
   // you set a value on a multiple select by setting the
   //'selected' property of a given option to true
@@ -58,13 +60,15 @@ function toggleTagBadge(event) {
   chosenTagOption.selected = !chosenTagOption.selected
 
   // once we have updated the option list, we trigger
-  // a DOM event for our filter component to listen for,
-  // and update the list of profiles shown
+  // a Custom DOM event for our filter component to listen for,
+  // and update the list of profiles shown.
+  // We pass along the id of the tag that was toggled to any other allow 
+  //   listeners to update the status of any visible tags
   document.body.dispatchEvent(
     new CustomEvent('toggle-tag', { detail: event.target.dataset.tagId })
   )
 
-  // make sure this badge itself has the correct colouring too
+  // finally, we make sure this badge itself has the correct colouring too
   if (chosenTagOption.selected) {
     event.target.classList.add('bg-blue-500')
   } else {
@@ -72,8 +76,7 @@ function toggleTagBadge(event) {
   }
 }
 
-// document this function
-function updateProfileBadgeState() {
+function addListenersForTagBadges() {
   document.querySelectorAll('#profile-slot .badge').forEach((item) => {
     // add a listener to the badge button for clicks if there isn't one already
     if (!item.getAttribute('data-hasClickListener')) {
@@ -180,9 +183,8 @@ document.body.addEventListener('toggle-tag', (event) => {
   document.querySelectorAll('#profile-slot .badge').forEach((item) => {
     const tagId = item.getAttribute('data-tag-id')
 
-    // // This will give you an array of all 'tags' values
-
-    // if tagId is in the activeTags list, set the button to active
+    
+    // if tagId is in the tag list, set the button to active
     if (tags.includes(tagId)) {
       item.classList.add('bg-blue-500')
     } else {
@@ -200,4 +202,4 @@ var tags = new URLSearchParams(new URL(window.location.href).search).getAll(
 
 addListenersForActiveTags()
 
-updateProfileBadgeState()
+addListenersForTagBadges()

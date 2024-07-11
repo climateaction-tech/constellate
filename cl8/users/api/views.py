@@ -168,32 +168,43 @@ def hide_profile_list(request: HttpRequest, context: dict):
     return True
 
 
+def _fetch_grouped_and_ungrouped() -> list[list]:
+    """
+    Fetch a two lists of the tags in the constellation.
+    The first is a list of tags grouped by their group name, like the original
+    CAT directory in Airtable, using the ":" separator to provide a some
+    meaningful hierarchy.
+    The second is a list of ungrouped tags with no separator
+    """
+    grouped_tags = {}
+    ungrouped_tags = []
+
+    for tag in Tag.objects.filter(name__icontains=":").order_by("name"):
+        try:
+            tag_group, tag_name = tag.name.split(":")
+            tag_name = tag.name.split(":")[1]
+            if tag_group not in grouped_tags:
+                grouped_tags[tag_group] = []
+            grouped_tags[tag_group].append({"name": tag_name, "tag": tag})
+        except ValueError:
+            logger.warning(f"Unable to split tag name: {tag.name}. Not showing.")
+
+    for ungrouped_tag in Tag.objects.exclude(name__icontains=":").order_by("name"):
+        ungrouped_tags.append({"name": ungrouped_tag.name, "tag": ungrouped_tag})
+
+    return [grouped_tags, ungrouped_tags]
+
+
 @login_required
 def homepage(request):
+    """
+    The main page loaded when a user logs in at '/
+    """
     ctx = {"is_authenticated": request.user.is_authenticated}
 
     ctx = fetch_profile_list(request, ctx)
 
-    def fetch_grouped_and_ungrouped():
-        grouped_tags = {}
-        ungrouped_tags = []
-
-        for tag in Tag.objects.filter(name__icontains=":").order_by("name"):
-            try:
-                tag_group, tag_name = tag.name.split(":")
-                tag_name = tag.name.split(":")[1]
-                if tag_group not in grouped_tags:
-                    grouped_tags[tag_group] = []
-                grouped_tags[tag_group].append({"name": tag_name, "tag": tag})
-            except ValueError:
-                logger.warning(f"Unable to split tag name: {tag.name}. Not showing.")
-
-        for ungrouped_tag in Tag.objects.exclude(name__icontains=":").order_by("name"):
-            ungrouped_tags.append({"name": ungrouped_tag.name, "tag": ungrouped_tag})
-
-            return [grouped_tags, ungrouped_tags]
-
-    global_grouped_tags, global_ungrouped_tags = fetch_grouped_and_ungrouped()
+    global_grouped_tags, global_ungrouped_tags = _fetch_grouped_and_ungrouped()
 
     ctx["global_grouped_tags"] = global_grouped_tags
     ctx["global_ungrouped_tags"] = global_ungrouped_tags
@@ -201,7 +212,8 @@ def homepage(request):
     should_hide_profile_list = hide_profile_list(request, ctx)
 
     ctx["hide_profile_list"] = should_hide_profile_list
-    logger.warn(f"should_hide_profile_list: {should_hide_profile_list}")
+    logger.debug(f"should_hide_profile_list: {should_hide_profile_list}")
+
     if request.htmx:
         template_name = "pages/_home_partial.html"
 
