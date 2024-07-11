@@ -1,8 +1,3 @@
-// when a user clicks on a tag, emit an event listing the name of the tag being clicked
-// this is picked up by the parent component and used to filter the list of profiles
-// shown    
-
-
 /**
 * Clear the profile slot and set the path in the url back to "/", 
 * adding the GET params, then the url to the history
@@ -20,7 +15,11 @@ function clearProfile() {
     // then set the profile slot to the empty profile
     const emptyProfile = document.querySelector('#empty-profile').innerHTML
     document.querySelector('#profile-slot .profile').innerHTML = emptyProfile
+    // the 'update-profile' profile event is mainly used on small viewports / 
+    // touch devices 
     htmx.trigger("body", "update-profile")
+    // with the empty profile added, we need to add the click listeners 
+    // to the listed tags again
     addListenersForTagBadges()
 
 
@@ -30,8 +29,9 @@ if (document.querySelector('#clear-profile')) {
     document.querySelector('#clear-profile').addEventListener('click', clearProfile)
 }
 
-// close-modal event is triggered when we have a successful update
-// to a profile
+// close-modal event is triggered by the server when we have a 
+// successful update to a profile. 
+// We listen for this event to close the model we just used to edit the profile
 document.body.addEventListener('close-modal', function () {
     const openDialog = document.querySelector('dialog[open]');
 
@@ -39,10 +39,15 @@ document.body.addEventListener('close-modal', function () {
         openDialog.close();
     }
     // trigger a reload of the profile with a 'save-profile-change'
-    //event, this makes sure we have the latest info for the profile
+    //event. This makes sure we have the latest info for the profile
     document.body.dispatchEvent(new CustomEvent("save-profile-change"))
 });
 
+/**
+ * We listen for the htmx:afterSettle for event know to trigger displaying of 
+ * the profile edit modal for making edits, and when loading the profile page
+ * we add the listeners to the tag badges so clicking them updates our list of profiles
+ */
 document.body.addEventListener("htmx:afterSettle", function (detail) {
     const dialog = detail.target.querySelector('dialog[data-onload-showmodal]');
     if (dialog) {
@@ -54,6 +59,6 @@ document.body.addEventListener("htmx:afterSettle", function (detail) {
     };
     console.debug("DOM fully loaded and parsed in HTMX");
 
-    // add click listeners to the badges
+    // add click listeners to the badges on the profile page load
     addListenersForTagBadges()
 });
