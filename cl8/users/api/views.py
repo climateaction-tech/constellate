@@ -174,6 +174,30 @@ def homepage(request):
 
     ctx = fetch_profile_list(request, ctx)
 
+    def fetch_grouped_and_ungrouped():
+        grouped_tags = {}
+        ungrouped_tags = []
+
+        for tag in Tag.objects.filter(name__icontains=":").order_by("name"):
+            try:
+                tag_group, tag_name = tag.name.split(":")
+                tag_name = tag.name.split(":")[1]
+                if tag_group not in grouped_tags:
+                    grouped_tags[tag_group] = []
+                grouped_tags[tag_group].append({"name": tag_name, "tag": tag})
+            except ValueError:
+                logger.warning(f"Unable to split tag name: {tag.name}. Not showing.")
+
+        for ungrouped_tag in Tag.objects.exclude(name__icontains=":").order_by("name"):
+            ungrouped_tags.append({"name": ungrouped_tag.name, "tag": ungrouped_tag})
+
+            return [grouped_tags, ungrouped_tags]
+
+    global_grouped_tags, global_ungrouped_tags = fetch_grouped_and_ungrouped()
+
+    ctx["global_grouped_tags"] = global_grouped_tags
+    ctx["global_ungrouped_tags"] = global_ungrouped_tags
+
     should_hide_profile_list = hide_profile_list(request, ctx)
 
     ctx["hide_profile_list"] = should_hide_profile_list
