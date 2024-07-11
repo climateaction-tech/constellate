@@ -12,12 +12,14 @@ from cl8.users.models import Constellation, Profile, User
 from cl8.users.tests.factories import (
     FakePhotoProfileFactory,
     ProfileFactory,
+    ProfileUserFactory,
     UserFactory,
 )
 
 register(UserFactory)
 register(FakePhotoProfileFactory)
 register(ProfileFactory)
+register(ProfileUserFactory)
 
 
 @pytest.fixture(autouse=True)
