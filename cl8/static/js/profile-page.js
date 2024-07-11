@@ -21,7 +21,7 @@ function clearProfile() {
     const emptyProfile = document.querySelector('#empty-profile').innerHTML
     document.querySelector('#profile-slot .profile').innerHTML = emptyProfile
     htmx.trigger("body", "update-profile")
-    updateProfileBadgeState()
+    addListenersForTagBadges()
 
 
 }
@@ -55,5 +55,5 @@ document.body.addEventListener("htmx:afterSettle", function (detail) {
     console.debug("DOM fully loaded and parsed in HTMX");
 
     // add click listeners to the badges
-    updateProfileBadgeState()
+    addListenersForTagBadges()
 });
