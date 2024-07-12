@@ -1,7 +1,7 @@
 import pytest
 from django.template.loader import render_to_string
 import webbrowser
-from rest_framework.test import RequestsClient, APIClient
+from rest_framework.test import APIClient
 
 
 def view_rendered_html_in_browser(string_template):
@@ -20,7 +20,6 @@ def view_rendered_html_in_browser(string_template):
 @pytest.mark.django_db
 class TestTemplateEmail:
 
-    @pytest.mark.only
     def test_render_email(self, profile):
         """
         Test that the template renders with based on what we're passing into context.
@@ -47,12 +46,15 @@ class TestTemplateEmail:
 
     @pytest.mark.django_db
     def test_add_context(self, profile, mailoutbox):
-        """ """
+        """
+        Check that POSTing to the email endpoint for sending an confirmation
+        sends an email with the correct context variables set
+        """
 
         # post to the new token send point
         assert len(mailoutbox) == 0
         client = APIClient()
-        res = client.post("http://testserver/auth/email/", {"email": profile.email})
+        client.post("http://testserver/auth/email/", {"email": profile.email})
         email_html = mailoutbox[0].alternatives[0][0]
         # view_rendered_html_in_browser(email_html)
         assert profile.name in email_html
