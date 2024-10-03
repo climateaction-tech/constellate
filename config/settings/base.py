@@ -85,7 +85,6 @@ THIRD_PARTY_APPS = [
     "dal",
     "dal_select2",
     "corsheaders",
-    "mjml",
     "sorl.thumbnail",
     "tailwind",
     "theme",
@@ -347,9 +346,6 @@ REST_FRAMEWORK = {
 # Your stuff...
 # ------------------------------------------------------------------------------
 
-MJML_CHECK_CMD_ON_STARTUP = True
-MJML_PATH = str(PROJECT_DIR / "theme" / "static_src" / "node_modules/.bin/mjml")
-MJML_EXEC_CMD = [MJML_PATH, "--config.validationLevel", "skip"]
 
 MODERATOR_GROUP_NAME = "Constellation Moderators"
 
