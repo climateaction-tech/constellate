@@ -1,7 +1,7 @@
 [project]
-name = "constellate-cat"
+name = "constellate"
 version = "0.1.0"
-description = "Add your description here"
+description = "Constellate is social software designed to help communities of practice and other small-ish groups to discover skills and interests inside the peer group."
 readme = "README.md"
 requires-python = ">=3.12"
 dependencies = [
